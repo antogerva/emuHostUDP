@@ -43,10 +43,10 @@ do
       queueInput = queue
     end,
     getSocketInfo = function(self)
-      print("Using sockname: " .. bindname .. ":" .. bindport)
-      print(clientSocket:getsockname())
-      print("Using peername: " .. peername .. ":" .. peerport)
-      return print(clientSocket:getpeername())
+      local bn, bp = clientSocket:getsockname()
+      local pn, pp = clientSocket:getpeername()
+      print("Using sockname: " .. bn .. ":" .. bp)
+      return print("Using peername: " .. pn .. ":" .. pp)
     end,
     initSocket = function(self)
       clientSocket:setsockname(bindname, bindport)
@@ -54,34 +54,26 @@ do
       clientSocket:setpeername(peername, peerport)
       self:getSocketInfo()
     end,
-    testRun = function(self, stuff)
-      table.insert(stuff, "confirm: test run")
-      queueInput = stuff
-      dumpPrint(queueInput)
+    testRun = function(self, inputTbl)
+      table.insert(inputTbl, "confirm: test run")
+      queueInput = inputTbl
       self:run()
     end,
     addInputQueue = function(self, msg)
       return table.insert(queueInput, msg)
     end,
     run = function(self)
-      print("runnnnn")
-      if (queueInput == nil) then
-        print("queueInp: nil")
-      end
       if (queueInput ~= nil) then
-        print("queueInp: " .. (#queueInput))
         for i, msg in ipairs(queueInput) do
           local _continue_0 = false
           repeat
             print("msg to send: " .. msg)
             if msg == nil then
-              print("msg is null")
+              print("msg is nil")
               _continue_0 = true
               break
             end
-            print("SEND MSG: " .. msg)
             clientSocket:send(msg)
-            print("SENDED MSG: " .. msg)
             _continue_0 = true
           until true
           if not _continue_0 then
@@ -119,11 +111,15 @@ do
     }, nil, 0)
     for i, inSocket in ipairs(canread) do
       local line, err = inSocket:receive()
+      local rcptValue = tostring(line)
+      if rcptValue == nil or rcptValue == "nil" then
+        print("Received an empty message.")
+        return 
+      end
       if err then
         print("error: " .. tostring(err))
       end
-      local rcptValue = tostring(line)
-      print("got: " .. rcptValue)
+      print("received: " .. rcptValue)
       if (rcptValue ~= nil and rcptValue ~= "nil") then
         if not cmpStartsString(rcptValue, "confirm") then
           local confirmMsg = "confirm: " .. rcptValue
@@ -131,6 +127,7 @@ do
           clientSocket:send(confirmMsg)
           form:updateClient(rcptValue)
         end
+        form:updateStatus("Connected")
         print("added " .. rcptValue)
       end
     end

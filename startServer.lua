@@ -4,5 +4,5 @@ package.loaded.formConnect=nil;
 package.loaded.client_udp=nil;
 package.loaded.utils=nil;
 
-require("moonscript");
+--require("moonscript");
 require("formConnect");
