@@ -12,7 +12,7 @@ local server = socket.udp();
 local portHost = 51424;
 local portClient = 51425;
 
-server:setsockname("localhost", portHost) 
+server:setsockname("localhost", portHost)
 server:settimeout(0);
 print("Server is up and can accept connetion");
 
@@ -41,7 +41,7 @@ function poll()
   local line, err = client:receive();
   local rcptValue = tostring(line);
 
-  --print("got: "..rcptValue)   
+  --print("got: "..rcptValue)
   if(rcptValue=="send") then
     server:send(dataToSend);
     --print("done ".. rcptValue)
@@ -54,13 +54,13 @@ function poll()
 end
 
 function start()
-  local canread = socket.select({server}, nil, 0);    
+  local canread = socket.select({server}, nil, 0);
   for _,client in ipairs(canread) do
     server:setpeername("localhost", portClient);
     local line, err = client:receive();
     local rcptValue = tostring(line);
 
-    --print("got: "..rcptValue)   
+    --print("got: "..rcptValue)
     if(rcptValue=="send") then
       server:send(dataToSend);
       --print("done ".. rcptValue)

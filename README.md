@@ -1,4 +1,7 @@
 # emuHostUDP
-Quick sample to make an UDP host from Bizhawk
+Messing with socket and lua
 
-Source code : emuHostUDP.lua and remExec.lua
+Changelog:
+-New client/server chat over network
+-Converted base code to moonscript
+-Use bizhawk forms
