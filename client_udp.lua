@@ -43,10 +43,8 @@ do
       queueInput = queue
     end,
     getSocketInfo = function(self)
-      local bn, bp = clientSocket:getsockname()
-      local pn, pp = clientSocket:getpeername()
-      print("Using sockname: " .. bn .. ":" .. bp)
-      return print("Using peername: " .. pn .. ":" .. pp)
+      print("Using sockname: " .. bindname .. ":" .. bindport)
+      return print("Using peername: " .. peername .. ":" .. peerport)
     end,
     initSocket = function(self)
       clientSocket:setsockname(bindname, bindport)

@@ -1,7 +1,7 @@
 # emuHostUDP <br/>
-Messing with socket and lua <br/>
+Messing with sockets and lua. <br/>
  <br/>
 Changelog: <br/>
--New client/server chat over network <br/>
--Converted base code to moonscript <br/>
--Use bizhawk forms  <br/>
+-New client/server chat over a networks <br/>
+-Converted base code to MoonScript <br/>
+-Use BizHawk forms <br/>

@@ -48,10 +48,8 @@ class ClientSpawn
     queueInput=queue
 
   getSocketInfo:(self)->
-    bn,bp = clientSocket\getsockname()
-    pn,pp = clientSocket\getpeername()
-    print("Using sockname: "..bn..":"..bp)
-    print("Using peername: "..pn..":"..pp)
+    print("Using sockname: "..bindname..":"..bindport)
+    print("Using peername: "..peername..":"..peerport)
 
   initSocket:(self)->
     clientSocket\setsockname(bindname, bindport)

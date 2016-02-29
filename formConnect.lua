@@ -98,7 +98,6 @@ do
         clientConnector:setPeerport(pp)
         clientConnector:initSocket()
         clientConnector:setUsername(usr)
-        clientConnector:testRun(inputTbl)
         self:setReadOnly()
         clientConnector:setForm(self)
         clientConnector:setInputQueue(inputTbl)

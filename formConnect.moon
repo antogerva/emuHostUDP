@@ -60,7 +60,7 @@ class FormConnect
         clientConnector\setPeerport(pp)
         clientConnector\initSocket()
         clientConnector\setUsername(usr)
-        clientConnector\testRun(inputTbl)
+        --clientConnector\testRun(inputTbl)
 
         @setReadOnly()
         clientConnector\setForm(self)
