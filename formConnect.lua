@@ -3,12 +3,13 @@ do
   local _obj_0 = _G
   forms, console = _obj_0.forms, _obj_0.console
 end
-local unpackArrValues, dumpPrint
+local unpackArrValues, dumpPrint, trim
 do
   local _obj_0 = require("utils")
-  unpackArrValues, dumpPrint = _obj_0.unpackArrValues, _obj_0.dumpPrint
+  unpackArrValues, dumpPrint, trim = _obj_0.unpackArrValues, _obj_0.dumpPrint, _obj_0.trim
 end
 inputTbl = { }
+timestampTbl = { }
 clientConnector = nil
 cSocket = nil
 say = nil
@@ -87,20 +88,22 @@ do
         local client_udp = require("client_udp")
         clientConnector = client_udp.ClientSpawn
         cSocket = client_udp.clientSocket
-        local bn = "localhost"
+        local bn = "*"
         local bp = forms.getproperty(self._txtUdpPort, "Text")
         local pn = forms.getproperty(self._txtConnect, "Text")
         local pp = forms.getproperty(self._txtConnectPort, "Text")
         local usr = forms.getproperty(self._txtUsername, "Text")
-        clientConnector:setBindname(bn)
-        clientConnector:setBindport(bp)
-        clientConnector:setPeername(pn)
-        clientConnector:setPeerport(pp)
+        clientConnector:setBindname(trim(bn))
+        clientConnector:setBindport(trim(bp))
+        clientConnector:setPeername(trim(pn))
+        clientConnector:setPeerport(trim(pp))
         clientConnector:initSocket()
-        clientConnector:setUsername(usr)
+        clientConnector:setUsername(trim(usr))
+        clientConnector:testRun(inputTbl)
         self:setReadOnly()
         clientConnector:setForm(self)
         clientConnector:setInputQueue(inputTbl)
+        clientConnector:setTimestampList(timestampTbl)
         clientConnector:startTimer()
       end
     else

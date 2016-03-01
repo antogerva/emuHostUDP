@@ -1,8 +1,9 @@
 
 import forms, console from _G
-import unpackArrValues, dumpPrint from require "utils"
+import unpackArrValues, dumpPrint, trim from require "utils"
 
 export inputTbl = {}
+export timestampTbl = {}
 export clientConnector = nil
 export cSocket = nil
 export say = nil
@@ -48,23 +49,24 @@ class FormConnect
         clientConnector = client_udp.ClientSpawn
         cSocket = client_udp.clientSocket
 
-        bn = "localhost"
+        bn = "*"
         bp = forms.getproperty(@_txtUdpPort, "Text")
         pn = forms.getproperty(@_txtConnect, "Text")
         pp = forms.getproperty(@_txtConnectPort, "Text")
         usr=forms.getproperty(@_txtUsername, "Text")
 
-        clientConnector\setBindname(bn)
-        clientConnector\setBindport(bp)
-        clientConnector\setPeername(pn)
-        clientConnector\setPeerport(pp)
+        clientConnector\setBindname(trim(bn))
+        clientConnector\setBindport(trim(bp))
+        clientConnector\setPeername(trim(pn))
+        clientConnector\setPeerport(trim(pp))
         clientConnector\initSocket()
-        clientConnector\setUsername(usr)
-        --clientConnector\testRun(inputTbl)
+        clientConnector\setUsername(trim(usr))
+        clientConnector\testRun(inputTbl)
 
         @setReadOnly()
         clientConnector\setForm(self)
         clientConnector\setInputQueue(inputTbl)
+        clientConnector\setTimestampList(timestampTbl)
         clientConnector\startTimer()
     else
       forms.setproperty(@_btnClientConnect, "Text", "Client Client")

@@ -9,7 +9,9 @@ import iup from _G
 --Using luasocket-2.0.2, you can download the socket library from:
 --http://files.luaforge.net/releases/luasocket/luasocket
 export socket = require('socket')
-import dumpPrint, cmpStartsString, clearTable, trim from require("utils")
+import dumpPrint, lenTbl, cmpStartsString, clearTable, getTimeStamp from require("utils")
+
+import arg from _G --command line args
 
 export clientSocket = socket.udp()
 
@@ -21,6 +23,7 @@ export peerport = nil
 export form=nil
 export username = "unknown"
 export queueInput=nil
+export tsTbl = {}
 
 class ClientSpawn
   new:()=>
@@ -29,20 +32,23 @@ class ClientSpawn
   setForm:(self, f)->
     form=f
 
+  setTimestampList:(self, listTbl)->
+    tsTbl=listTbl
+
   setBindname:(self, bn)->
-    bindname=trim(bn)
+    bindname=bn
 
   setBindport:(self, bp)->
-    bindport=tonumber(trim(bp))
+    bindport=tonumber(bp)
 
   setPeername:(self, pn)->
-    peername=trim(pn)
+    peername=pn
 
   setPeerport:(self, pp)->
-    peerport=tonumber(trim(pp))
+    peerport=tonumber(pp)
 
   setUsername:(self, usr)->
-    username=trim(usr)
+    username=usr
 
   setInputQueue:(self, queue)->
     queueInput=queue
@@ -53,15 +59,16 @@ class ClientSpawn
 
   initSocket:(self)->
     clientSocket\setsockname(bindname, bindport)
-    clientSocket\settimeout(0)
+    clientSocket\settimeout(44)
     clientSocket\setpeername(peername, peerport)
     @getSocketInfo()
     return
 
   testRun:(self, inputTbl)->
-    table.insert(inputTbl, "confirm: test run")
+    table.insert(inputTbl, "confirm:"..getTimeStamp()..";;usr: test run")
     queueInput=inputTbl
     @run()
+    queueInput=nil
     return
 
   addInputQueue:(self, msg)->
@@ -75,20 +82,36 @@ class ClientSpawn
     canread = socket.select({clientSocket}, nil, 0)
     for i,inSocket in ipairs(canread) do
       line, err = inSocket\receive()
-      rcptValue = tostring(line)
-      if rcptValue==nil or rcptValue=="nil" then
+      dumpPrint tsTbl
+
+      if line==nil or line=="nil" then
         print "Received an empty message."
-        return
-      if err then print "error: "..tostring(err)
+        if err then print "error: "..tostring(err)
+        continue
+
+      inSockValue = tostring(line)..""
+      print "inSock: "..inSockValue
+      splitSock={}
+      for str in string.gmatch(inSockValue,"([^;;]+)") do
+        splitSock[lenTbl(splitSock)]=tostring(str)
+
+      ts,rcptValue = splitSock[0], splitSock[1]
+
+      maxCheckout = 10
+      for i=#tsTbl-1, (0 or #tsTbl-maxCheckout), -1 do
+        if tsTbl[i]==ts then
+          print "Received a duplicated message."
+          break
+      table.insert(tsTbl, ts)
 
       print("received: "..rcptValue)
       if(rcptValue~=nil and rcptValue~="nil") then
         if not cmpStartsString(rcptValue,"confirm")
-          confirmMsg = "confirm: "..rcptValue
+          confirmMsg = getTimeStamp()..";;confirm: "..rcptValue
           print("sending: "..confirmMsg)
           clientSocket\send(confirmMsg)
-          form\updateClient(rcptValue)
-        form\updateStatus("Connected")
+          if form~=nil then form\updateClient(rcptValue)
+        if form~=nil then form\updateStatus("Connected")
         print("added "..rcptValue)
 
   @startTimer:()->
@@ -101,12 +124,37 @@ class ClientSpawn
   run:(self)->
     if(queueInput ~= nil) then
       for i, msg in ipairs(queueInput) do
-        print "msg to send: "..msg
         if msg == nil then
           print("msg is nil")
           continue
-        clientSocket\send(msg)
+        packet = getTimeStamp()..";;"..msg
+        print "packet to send: "..packet
+        clientSocket\send(packet)
       clearTable(queueInput)
     return
+
+cmdUsage=()->
+  --usage:
+  --moon client_udp.moon 51424 51425
+  --moon client_udp.moon 51425 51424
+  if arg~=nil and arg[1]~=nil and arg[2]~=nil then
+    print "cmd mode"
+    bp = arg[1]
+    pp = arg[2]
+    clientConnector = ClientSpawn
+    clientConnector\setBindname("*")
+    clientConnector\setBindport(bp)
+    clientConnector\setPeername("localhost")
+    clientConnector\setPeerport(pp)
+    clientConnector\initSocket()
+    clientConnector\setUsername("bob")
+    clientConnector\testRun({})
+
+    clientConnector\setInputQueue({})
+    clientConnector\setTimestampList({})
+    clientConnector\startTimer()
+    iup.MainLoop() --start a loop
+cmdUsage()
+
 
 return {:ClientSpawn, :clientSocket}

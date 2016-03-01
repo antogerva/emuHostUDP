@@ -218,6 +218,28 @@ prettyPrint = function(...)
   end
   return debug.print(...)
 end
+local split
+split = function(str, sep)
+  local fields
+  sep, fields = sep or ":", { }
+  local pattern = string.format("([^%s]+)", sep)
+  str:gsub(pattern, (function(c)
+    fields[#fields + 1] = c
+  end))
+  return fields
+end
+local lenTbl
+lenTbl = function(t)
+  local i = 0
+  for _ in pairs(t) do
+    i = i + 1
+  end
+  return i
+end
+local getTimeStamp
+getTimeStamp = function()
+  return os.time()
+end
 return {
   toArr = toArr,
   cmpStartsString = cmpStartsString,
@@ -227,5 +249,8 @@ return {
   unpackArrValues = unpackArrValues,
   clearTable = clearTable,
   trim = trim,
-  dumpFile = dumpFile
+  dumpFile = dumpFile,
+  split = split,
+  lenTbl = lenTbl,
+  getTimeStamp = getTimeStamp
 }

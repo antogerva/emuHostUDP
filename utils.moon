@@ -180,5 +180,20 @@ prettyPrint = (...)->
       print!
   debug.print(...)
 
+split = (str, sep)->
+  sep, fields = sep or ":", {}
+  pattern = string.format("([^%s]+)", sep)
+  str\gsub(pattern, ((c) -> fields[#fields+1] = c))
+  return fields
+
+lenTbl = (t)->
+  i=0
+  for _ in pairs(t) do
+    i+=1
+  return i
+
+getTimeStamp = ()->
+  return os.time()
+
 {:toArr, :cmpStartsString, :prettyPrint, :dumpPrint, :dump, :unpackArrValues,
- :clearTable, :trim, :dumpFile}
+ :clearTable, :trim, :dumpFile, :split, :lenTbl,  :getTimeStamp}
