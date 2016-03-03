@@ -238,7 +238,12 @@ lenTbl = function(t)
 end
 local getTimeStamp
 getTimeStamp = function()
-  return os.time()
+  if _G.socket ~= nil then
+    local microSecs = _G.socket.gettime() * 1000000
+    return microSecs
+  else
+    return print("ERROR: TIMESTAMP SOCKET")
+  end
 end
 return {
   toArr = toArr,

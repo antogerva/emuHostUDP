@@ -193,7 +193,12 @@ lenTbl = (t)->
   return i
 
 getTimeStamp = ()->
-  return os.time()
+  if _G.socket ~= nil then
+    microSecs = _G.socket.gettime()*1000000
+    --print "genTS: "..microSecs
+    return microSecs
+  else
+    print "ERROR: TIMESTAMP SOCKET"
 
 {:toArr, :cmpStartsString, :prettyPrint, :dumpPrint, :dump, :unpackArrValues,
  :clearTable, :trim, :dumpFile, :split, :lenTbl,  :getTimeStamp}

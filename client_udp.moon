@@ -98,11 +98,19 @@ class ClientSpawn
       ts,rcptValue = splitSock[0], splitSock[1]
 
       maxCheckout = 10
-      for i=#tsTbl-1, (0 or #tsTbl-maxCheckout), -1 do
+      isInvalid = false
+      for i=0, (#tsTbl or maxCheckout), 1 do
+        print "just checking..."
         if tsTbl[i]==ts then
-          print "Received a duplicated message."
-          break
-      table.insert(tsTbl, ts)
+          print "Received a duplicated message at TS: "..ts
+          isInvalid=true
+      if isInvalid==true then
+        continue
+      if #tsTbl>10
+        tsTbl[9]=nil
+      print "tsTbl content:"
+      dumpPrint tsTbl
+      table.insert(tsTbl, 1, ts) --insert at the start of the queue
 
       print("received: "..rcptValue)
       if(rcptValue~=nil and rcptValue~="nil") then
@@ -141,10 +149,11 @@ cmdUsage=()->
     print "cmd mode"
     bp = arg[1]
     pp = arg[2]
+    pn = if arg[3]~=nil then arg[3] else "localhost"
     clientConnector = ClientSpawn
     clientConnector\setBindname("*")
     clientConnector\setBindport(bp)
-    clientConnector\setPeername("localhost")
+    clientConnector\setPeername(pn)
     clientConnector\setPeerport(pp)
     clientConnector\initSocket()
     clientConnector\setUsername("bob")
@@ -153,6 +162,15 @@ cmdUsage=()->
     clientConnector\setInputQueue({})
     clientConnector\setTimestampList({})
     clientConnector\startTimer()
+    tsDup =getTimeStamp()
+    print "sending dup"
+    clientSocket\send(tsDup..";;"..username..": ".."hey")
+    clientSocket\send(tsDup..";;"..username..": ".."hey")
+
+
+    while true do
+      _,msg = iup.GetParam("Title", nil,  "Msg to reply: %s\n","")
+      clientSocket\send(getTimeStamp()..";;"..username..": "..msg)
     iup.MainLoop() --start a loop
 cmdUsage()
 

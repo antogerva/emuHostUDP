@@ -136,13 +136,24 @@ do
         end
         local ts, rcptValue = splitSock[0], splitSock[1]
         local maxCheckout = 10
-        for i = #tsTbl - 1, (0 or #tsTbl - maxCheckout), -1 do
+        local isInvalid = false
+        for i = 0, (#tsTbl or maxCheckout), 1 do
+          print("just checking...")
           if tsTbl[i] == ts then
-            print("Received a duplicated message.")
-            break
+            print("Received a duplicated message at TS: " .. ts)
+            isInvalid = true
           end
         end
-        table.insert(tsTbl, ts)
+        if isInvalid == true then
+          _continue_0 = true
+          break
+        end
+        if #tsTbl > 10 then
+          tsTbl[9] = nil
+        end
+        print("tsTbl content:")
+        dumpPrint(tsTbl)
+        table.insert(tsTbl, 1, ts)
         print("received: " .. rcptValue)
         if (rcptValue ~= nil and rcptValue ~= "nil") then
           if not cmpStartsString(rcptValue, "confirm") then
@@ -183,10 +194,16 @@ cmdUsage = function()
     print("cmd mode")
     local bp = arg[1]
     local pp = arg[2]
+    local pn
+    if arg[3] ~= nil then
+      pn = arg[3]
+    else
+      pn = "localhost"
+    end
     local clientConnector = ClientSpawn
     clientConnector:setBindname("*")
     clientConnector:setBindport(bp)
-    clientConnector:setPeername("localhost")
+    clientConnector:setPeername(pn)
     clientConnector:setPeerport(pp)
     clientConnector:initSocket()
     clientConnector:setUsername("bob")
@@ -194,6 +211,14 @@ cmdUsage = function()
     clientConnector:setInputQueue({ })
     clientConnector:setTimestampList({ })
     clientConnector:startTimer()
+    local tsDup = getTimeStamp()
+    print("sending dup")
+    clientSocket:send(tsDup .. ";;" .. username .. ": " .. "hey")
+    clientSocket:send(tsDup .. ";;" .. username .. ": " .. "hey")
+    while true do
+      local _, msg = iup.GetParam("Title", nil, "Msg to reply: %s\n", "")
+      clientSocket:send(getTimeStamp() .. ";;" .. username .. ": " .. msg)
+    end
     return iup.MainLoop()
   end
 end
