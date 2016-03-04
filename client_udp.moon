@@ -100,7 +100,6 @@ class ClientSpawn
       maxCheckout = 10
       isInvalid = false
       for i=0, (#tsTbl or maxCheckout), 1 do
-        print "just checking..."
         if tsTbl[i]==ts then
           print "Received a duplicated message at TS: "..ts
           isInvalid=true
