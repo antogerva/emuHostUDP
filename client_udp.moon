@@ -9,7 +9,7 @@ import iup from _G
 --Using luasocket-2.0.2, you can download the socket library from:
 --http://files.luaforge.net/releases/luasocket/luasocket
 export socket = require('socket')
-import dumpPrint, lenTbl, cmpStartsString, clearTable, getTimeStamp from require("utils")
+import lenTbl, cmpStartsString, clearTable, getTimeStamp from require("utils")
 
 import arg from _G --command line args
 
@@ -82,7 +82,6 @@ class ClientSpawn
     canread = socket.select({clientSocket}, nil, 0)
     for i,inSocket in ipairs(canread) do
       line, err = inSocket\receive()
-      dumpPrint tsTbl
 
       if line==nil or line=="nil" then
         print "Received an empty message."
@@ -108,7 +107,6 @@ class ClientSpawn
       if #tsTbl>10
         tsTbl[9]=nil
       print "tsTbl content:"
-      dumpPrint tsTbl
       table.insert(tsTbl, 1, ts) --insert at the start of the queue
 
       print("received: "..rcptValue)
